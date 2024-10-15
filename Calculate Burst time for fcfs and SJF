@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+    <title>Hello, World!</title>
+    <link rel="stylesheet" href="c.css">
+    <script>
+        function runFCFS() {
+            let bt = document.getElementById("k").value.split(",").map(Number);
+            let tat = [];
+
+            let Ar = document.getElementById("Ar").value.split(",").map(Number);
+            let wt = [];
+            wt[0] = 0;
+
+            for (let i = 1; i < bt.length; i++) {
+                wt[i] = bt[i - 1] + wt[i - 1];
+            }
+
+            for (let i = 0; i < bt.length; i++) {
+                tat[i] = bt[i] + wt[i];
+            }
+
+            displayResults(bt, Ar, wt, tat);
+        }
+
+        function runSJF() {
+            let bt = document.getElementById("k").value.split(",").map(Number);
+            let Ar = document.getElementById("Ar").value.split(",").map(Number);
+            let tat = [];
+            let wt = [];
+
+            // Sorting burst time and arrival time based on burst time (SJF)
+            for (let i = 0; i < bt.length; i++) {
+                for (let j = i + 1; j < bt.length; j++) {
+                    if (bt[i] > bt[j]) {
+                        // Swap burst time
+                        [bt[i], bt[j]] = [bt[j], bt[i]];
+                        // Swap arrival time to keep it aligned with burst time
+                        if(Ar[i]>Ar[j]){
+                        [Ar[i], Ar[j]] = [Ar[j], Ar[i]];
+                        }
+                    }
+                        
+                }
+            }
+
+            // Calculate waiting time
+            wt[0] = 0;
+            for (let i = 1; i < bt.length; i++) {
+                wt[i] = bt[i - 1] + wt[i - 1];
+            }
+
+            // Calculate turn around time
+            for (let i = 0; i < bt.length; i++) {
+                tat[i] = bt[i] + wt[i];
+            }
+
+            displayResults(bt, Ar, wt, tat);
+        }
+    
+    
+    
+    function runRR() {
+    let bt = document.getElementById("k").value.split(",").map(Number);
+    let Ar = document.getElementById("Ar").value.split(",").map(Number);
+    let quantum = parseInt(prompt("Enter time quantum:"));
+    let wt = new Array(bt.length).fill(0);
+    let tat = new Array(bt.length).fill(0);
+    let rem_bt = [...bt]; // Remaining burst times
+    let t = 0; // Current time
+    let complete = 0; // Number of completed processes
+
+    while (complete < bt.length) {
+        let allProcessesBlocked = true; // Check if all processes are blocked
+        for (let i = 0; i < bt.length; i++) {
+            if (rem_bt[i] > 0 && Ar[i] <= t) {
+                allProcessesBlocked = false; // At least one process is ready
+                if (rem_bt[i] > quantum) {
+                    t += quantum;
+                    rem_bt[i] -= quantum;
+                } else {
+                    t += rem_bt[i];
+                    wt[i] = t - bt[i] - Ar[i];
+                    rem_bt[i] = 0; // Process completed
+                    complete++;
+                }
+            }
+        }
+        // If all processes are blocked, increment time
+        if (allProcessesBlocked) {
+            t++;
+        }
+    }
+     for (let i = 0; i < bt.length; i++) {
+        wt[i];
+    }   
+
+    // Calculate turn around time
+    for (let i = 0; i < bt.length; i++) {
+        tat[i] = bt[i] + wt[i];
+    }
+
+    displayResults(bt, Ar, wt, tat);
+}
+        function displayResults(bt, Ar, wt, tat) {
+            let result = '<table border="1" style="border-collapse: collapse;">';
+            result += `<tr>
+                <th>Process</th>
+                <th>Arrival Time</th>
+                <th>Burst Time</th>
+                <th>Waiting Time</th>
+                <th>Turn Around Time</th>
+            </tr>`;
+
+            for (let i = 0; i < bt.length; i++) {
+                result += `<tr><td>${i + 1}</td><td>${Ar[i]}</td><td>${bt[i]}</td><td>${wt[i]}</td><td>${tat[i]}</td></tr>`;
+            }
+
+            result += '</table>';
+            document.getElementById("output").innerHTML = result;
+        }
+
+        function runAlgorithm() {
+            let algorithm = document.getElementById("algorithm").value;
+
+            switch (algorithm) {
+                case 'FCFS':
+                    runFCFS();
+                    break;
+                case 'SJF':
+                    runSJF();
+                    break;
+                case 'RR':
+                    runRR();
+                    break;
+                default:
+                    alert("Please select a valid algorithm!");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="h">
+        <h1 class="sh">Algorithm</h1>
+        <form onsubmit="event.preventDefault(); runAlgorithm();">
+            Scheduling
+            <select class="s" id="algorithm">
+                <option value="FCFS">FCFS</option>
+                <option value="SJF">SJF</option>
+                <option value="RR">RR</option>
+            </select><br><br>
+
+            <label for="Ar">Arrival time</label>
+            <input type="text" id="Ar" placeholder="e.g 2, 4, 5"><br><br>
+
+            <label for="k" id="g">Burst time</label> 
+            <input type="text" id="k" placeholder.="e.g 5, 3, 5"><br><br>
+
+            <button type="submit"><h1><b>OUTPUT</b></h1></button>
+        </form><br><br>
+    </div>
+
+    <div class="lp">
+        <p>Table will be shown here:</p>
+        <div id="output"></div> <!-- Output table will appear here -->
+    </div>
+</body>
+</html>
+
